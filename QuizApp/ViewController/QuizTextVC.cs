@@ -2,13 +2,256 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using CoreGraphics;
 using Foundation;
+using QuizApp.Model;
 using UIKit;
 
 namespace QuizApp.ViewController
 {
-    public class QuizTextVC
+    public class QuizTextVC : UIViewController, IUICollectionViewDataSource, IUICollectionViewDelegate,
+    IUICollectionViewDelegateFlowLayout
     {
+        private UIButton btnPrev;
+        private UIButton btnNext;
+        private UILabel lblQueNumber;
+        private UILabel lblScore;
+        private UICollectionView collectionView;
+        private int currentQuestionNumber = 1;
+        private int _index;
+        private List<Answer> _answers;
+        private List<QuestionMBText> _questionData;
+        private string QuestionPageQuestionWord, QuestionPageTypeOFQ1, QuestionPageTypeOFQ2, QuestionPageTypeOFQ3;
+        private readonly string model = UIDevice.CurrentDevice.Model;
+        private readonly string brand = UIDevice.CurrentDevice.Name;
+        private List<byte> selectedAnwser;
+
+        public QuizTextVC(OutPutText dataText)
+        {
+            this.Title = "Text Quiz";
+            string filename = "bg02.png";
+            UIImage image = UIImage.FromFile(filename);
+            image = image.Scale(View.Frame.Size);
+            this.View.BackgroundColor = UIColor.FromPatternImage(image);
+
+            _answers = dataText.Answers;
+            _questionData = dataText.TotalData;
+
+            selectedAnwser = new List<byte>(10);
+
+            for (int i = 0; i < 10; i++)
+            {
+                selectedAnwser.Add(0);
+            }
+
+        }
+        public override void DidReceiveMemoryWarning()
+        {
+            base.DidReceiveMemoryWarning();
+            // Release any cached data, images, etc that aren't in use.
+        }
+        public override void ViewDidLoad()
+        {
+            QuestionPageQuestionWord = TranslationManager.Translate("QuestionPageQuestionWord");
+            QuestionPageTypeOFQ1 = TranslationManager.Translate("QuestionPageTypeOFQ1");
+            QuestionPageTypeOFQ2 = TranslationManager.Translate("QuestionPageTypeOFQ2");
+            QuestionPageTypeOFQ3 = TranslationManager.Translate("QuestionPageTypeOFQ3");
+
+
+            btnPrev = new UIButton();
+            btnPrev.SetTitle("< " + TranslationManager.Translate("QuestionPagePrevious"), UIControlState.Normal);
+            btnPrev.SetTitleColor(UIColor.White, UIControlState.Normal);
+            btnPrev.BackgroundColor = UIColor.Orange;
+            btnPrev.TranslatesAutoresizingMaskIntoConstraints = false;
+            btnPrev.TouchUpInside += (sender, e) => { btnPrevNextAction((UIButton)sender); };
+
+            btnNext = new UIButton();
+            btnNext.SetTitle(TranslationManager.Translate("QuestionPageNext") + " >", UIControlState.Normal);
+            btnNext.SetTitleColor(UIColor.White, UIControlState.Normal);
+            btnNext.BackgroundColor = UIColor.Purple;
+            btnNext.TranslatesAutoresizingMaskIntoConstraints = false;
+            btnNext.TouchUpInside += (sender, e) => { btnPrevNextAction((UIButton)sender); };
+
+            lblQueNumber = new UILabel();
+            lblQueNumber.Text = "0 / 0";
+            lblQueNumber.TextColor = UIColor.White;
+            lblQueNumber.TextAlignment = UITextAlignment.Left;
+            lblQueNumber.Font = UIFont.SystemFontOfSize(16);
+            lblQueNumber.TranslatesAutoresizingMaskIntoConstraints = false;
+
+            lblScore = new UILabel();
+            lblScore.Text = "0 / 0";
+            lblScore.TextColor = UIColor.White;
+            lblScore.TextAlignment = UITextAlignment.Right;
+            lblScore.Font = UIFont.SystemFontOfSize(16);
+            lblScore.TranslatesAutoresizingMaskIntoConstraints = false;
+
+            CGSize size = new CGSize(View.Frame.Width, View.Frame.Height);
+
+            var layout = new UICollectionViewFlowLayout
+            {
+                SectionInset = new UIEdgeInsets(0, 0, 0, 0),
+                MinimumInteritemSpacing = 0,
+                MinimumLineSpacing = 0,
+                ItemSize = size,
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal
+            };
+
+            if (model == "iPhone")
+            {
+                if (brand.Contains('X'))
+                {
+                    collectionView = new UICollectionView(new CGRect(0, 80, this.View.Frame.Width, this.View.Frame.Height), layout);
+                }
+                else
+                {
+                    collectionView = new UICollectionView(new CGRect(0, 60, this.View.Frame.Width, this.View.Frame.Height), layout);
+                }
+            }
+            else
+            {
+                collectionView = new UICollectionView(new CGRect(0, 60, this.View.Frame.Width, this.View.Frame.Height), layout);
+            }
+
+            //collectionView = new UICollectionView(new CGRect(0, 60, this.View.Frame.Width, this.View.Frame.Height), layout);
+            collectionView.DataSource = this;
+            collectionView.ContentMode = UIViewContentMode.Center;
+            collectionView.ShowsVerticalScrollIndicator = false;
+            collectionView.RegisterClassForCell(typeof(QuizTextCellVC), QuizTextCellVC.CellId);
+            collectionView.PagingEnabled = true;
+            collectionView.BackgroundColor = UIColor.Clear;
+
+            this.View.AddSubview(collectionView);
+            this.View.AddSubview(btnPrev);
+            this.View.AddSubview(btnNext);
+            this.View.AddSubview(lblQueNumber);
+            this.View.AddSubview(lblScore);
+
+        }
+        
+
+        public override void ViewDidLayoutSubviews()
+        {
+            collectionView.TopAnchor.ConstraintEqualTo(this.View.TopAnchor).Active = true;
+            collectionView.LeftAnchor.ConstraintEqualTo(this.View.LeftAnchor).Active = true;
+            collectionView.RightAnchor.ConstraintEqualTo(this.View.RightAnchor).Active = true;
+            collectionView.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor).Active = true;
+
+            btnPrev.HeightAnchor.ConstraintEqualTo(50).Active = true;
+            btnPrev.WidthAnchor.ConstraintEqualTo(this.View.WidthAnchor, 0.5f).Active = true;
+            btnPrev.LeftAnchor.ConstraintEqualTo(this.View.LeftAnchor).Active = true;
+            btnPrev.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor, 0).Active = true;
+
+            btnNext.HeightAnchor.ConstraintEqualTo(btnPrev.HeightAnchor).Active = true;
+            btnNext.WidthAnchor.ConstraintEqualTo(btnPrev.WidthAnchor).Active = true;
+            btnNext.RightAnchor.ConstraintEqualTo(this.View.RightAnchor).Active = true;
+            btnNext.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor, constant: 0).Active = true;
+
+
+            lblQueNumber.HeightAnchor.ConstraintEqualTo(20).Active = true;
+            lblQueNumber.WidthAnchor.ConstraintEqualTo(150).Active = true;
+            lblQueNumber.LeftAnchor.ConstraintEqualTo(this.View.LeftAnchor, 20).Active = true;
+            lblQueNumber.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor, -120).Active = true;
+            lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+
+
+            lblScore.HeightAnchor.ConstraintEqualTo(lblQueNumber.HeightAnchor).Active = true;
+            lblScore.WidthAnchor.ConstraintEqualTo(lblQueNumber.WidthAnchor).Active = true;
+            lblScore.RightAnchor.ConstraintEqualTo(this.View.RightAnchor, -20).Active = true;
+            lblScore.BottomAnchor.ConstraintEqualTo(lblQueNumber.BottomAnchor).Active = true;
+            lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
+
+        }
+        private void btnPrevNextAction(UIButton sender)
+        {
+            if (sender == btnNext && currentQuestionNumber == _questionData.Count)
+            {
+                Completed(currentQuestionNumber);
+                return;
+            }
+
+            var collectionBounds = this.collectionView.Bounds;
+            float contentOffset = 0;
+            if (sender == btnNext)
+            {
+                contentOffset = (float)Math.Floor(this.collectionView.ContentOffset.X + collectionBounds.Size.Width);
+                currentQuestionNumber += currentQuestionNumber >= _questionData.Count ? 0 : 1;
+            }
+            else
+            {
+                if (currentQuestionNumber > 1)
+                {
+                    contentOffset = (float)Math.Floor(this.collectionView.ContentOffset.X - collectionBounds.Size.Width);
+                    currentQuestionNumber -= currentQuestionNumber <= 0 ? 0 : 1;
+                }
+            }
+            lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+            int total = _answers.Count;
+            int score = _answers.Count(x => x.IsCorrectAnswer);
+            lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
+
+            MoveToFrame(contentOffset);
+        }
+
+        private void Completed(int currentQuestionNum)
+        {
+            int total = _questionData.Count;
+            if (currentQuestionNum != total)
+                return;
+
+            int finished = _answers.Count(x => x.IsAnswered);
+            if (finished == total)
+            {
+                //FinalTextVC final = new FinalTextVC(_answers);
+                //final.Answers = _answers;
+                //NavigationController.PushViewController(final, true);
+            }
+        }
+
+        private void MoveToFrame(float contentOffset)
+        {
+            var frame = new CGRect(contentOffset, this.collectionView.ContentOffset.Y, this.collectionView.Frame.Width, this.collectionView.Frame.Height);
+            this.collectionView.ScrollRectToVisible(frame, true);
+
+        }
+        private void SetQuestionNumber()
+        {
+            var x = collectionView.ContentOffset.X;
+            var w = collectionView.Bounds.Size.Width;
+            var currentPage = (int)Math.Ceiling(x / w);
+            if (currentPage < _questionData.Count)
+            {
+                lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+                currentQuestionNumber = currentPage + 1;
+            }
+        }
+
+        public nint GetItemsCount(UICollectionView collectionView, nint section)
+        {
+            return _questionData.Count;
+        }
+
+        public UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
+        {
+            var cell = collectionView.DequeueReusableCell(QuizTextCellVC.CellId, indexPath) as QuizTextCellVC;
+            cell.UpdateCell(_questionData[indexPath.Row], indexPath.Row, QuestionPageTypeOFQ1, _answers[indexPath.Row], selectedAnwser[indexPath.Row]);
+            cell.CellData += CellDataUpdated;
+            return cell;
+        }
+
+        void CellDataUpdated(object sender, CellDataUpdateEventArgs e)
+        {
+            Answer cellAnswer = e.CurrentAnswer;
+            int index = e.Index;
+            _index = index;
+            currentQuestionNumber = index + 1;
+            lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+        }
+
+        [Export("scrollViewDidEndDecelerating:")]
+        public void DecelerationEnded(UIScrollView scrollView)
+        {
+            System.Diagnostics.Debug.WriteLine(scrollView.ContentOffset.Y.ToString());
+        }
     }
 }

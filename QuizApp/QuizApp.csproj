@@ -64,7 +64,12 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="Model\Answer.cs" />
     <Compile Include="Model\MbText.cs" />
+    <Compile Include="Model\OutPutText.cs" />
+    <Compile Include="Model\QuestionMB.cs" />
+    <Compile Include="Model\QuestionMBText.cs" />
+    <Compile Include="Model\Textline.cs" />
     <Compile Include="Service\AnswerSample.cs" />
+    <Compile Include="ViewController\CellDataUpdateEventArgs.cs" />
     <Compile Include="ViewController\QuizTextCellVC.cs" />
     <Compile Include="ViewController\QuizTextVC.cs" />
     <None Include="Info.plist" />
