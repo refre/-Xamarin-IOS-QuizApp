@@ -25,6 +25,7 @@ namespace QuizApp
             Window.RootViewController = new UIViewController();
 
             var one = new OutPutText();
+            
 
             var mainmenu = new QuizTextVC(one);
             var navcontroller = new UINavigationController(mainmenu);

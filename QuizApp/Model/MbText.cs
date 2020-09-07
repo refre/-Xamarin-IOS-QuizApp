@@ -12,16 +12,10 @@ namespace QuizApp.Model
     {
         public string Id { get; set; }
         
-        public string Game { get; set; }
+        public string MovieName { get; set; }
         
-        public string ArtistName { get; set; }
-        
-        public string SongName { get; set; }
-        
-        public string SentenceId { get; set; }
-        
-        public string SentenceText { get; set; }
-        
-        public string DisplayName { get; set; }
+        public string ActorName { get; set; }
+        public bool IsCorrectAnswer { get; set; }
+
     }
 }

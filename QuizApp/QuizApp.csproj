@@ -69,6 +69,7 @@
     <Compile Include="Model\QuestionMBText.cs" />
     <Compile Include="Model\Textline.cs" />
     <Compile Include="Service\AnswerSample.cs" />
+    <Compile Include="Service\MockManagementText.cs" />
     <Compile Include="ViewController\CellDataUpdateEventArgs.cs" />
     <Compile Include="ViewController\QuizTextCellVC.cs" />
     <Compile Include="ViewController\QuizTextVC.cs" />
