@@ -52,21 +52,21 @@ namespace QuizApp.ViewController
         }
         public override void ViewDidLoad()
         {
-            QuestionPageQuestionWord = TranslationManager.Translate("QuestionPageQuestionWord");
-            QuestionPageTypeOFQ1 = TranslationManager.Translate("QuestionPageTypeOFQ1");
-            QuestionPageTypeOFQ2 = TranslationManager.Translate("QuestionPageTypeOFQ2");
-            QuestionPageTypeOFQ3 = TranslationManager.Translate("QuestionPageTypeOFQ3");
+            QuestionPageQuestionWord = "Question";
+            QuestionPageTypeOFQ1 = "Who is the main actor of this movie ?";
+            QuestionPageTypeOFQ2 = "Qui est le chanteur de cette chanson ?";
+            QuestionPageTypeOFQ3 = "D'où viens cette phrase ?";
 
 
             btnPrev = new UIButton();
-            btnPrev.SetTitle("< " + TranslationManager.Translate("QuestionPagePrevious"), UIControlState.Normal);
+            btnPrev.SetTitle("< " + "Previous", UIControlState.Normal);
             btnPrev.SetTitleColor(UIColor.White, UIControlState.Normal);
             btnPrev.BackgroundColor = UIColor.Orange;
             btnPrev.TranslatesAutoresizingMaskIntoConstraints = false;
             btnPrev.TouchUpInside += (sender, e) => { btnPrevNextAction((UIButton)sender); };
 
             btnNext = new UIButton();
-            btnNext.SetTitle(TranslationManager.Translate("QuestionPageNext") + " >", UIControlState.Normal);
+            btnNext.SetTitle("Next" + " >", UIControlState.Normal);
             btnNext.SetTitleColor(UIColor.White, UIControlState.Normal);
             btnNext.BackgroundColor = UIColor.Purple;
             btnNext.TranslatesAutoresizingMaskIntoConstraints = false;
@@ -152,7 +152,7 @@ namespace QuizApp.ViewController
             lblQueNumber.WidthAnchor.ConstraintEqualTo(150).Active = true;
             lblQueNumber.LeftAnchor.ConstraintEqualTo(this.View.LeftAnchor, 20).Active = true;
             lblQueNumber.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor, -120).Active = true;
-            lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
 
 
             lblScore.HeightAnchor.ConstraintEqualTo(lblQueNumber.HeightAnchor).Active = true;
@@ -185,7 +185,7 @@ namespace QuizApp.ViewController
                     currentQuestionNumber -= currentQuestionNumber <= 0 ? 0 : 1;
                 }
             }
-            lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
             int total = _answers.Count;
             int score = _answers.Count(x => x.IsCorrectAnswer);
             lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
@@ -221,7 +221,7 @@ namespace QuizApp.ViewController
             var currentPage = (int)Math.Ceiling(x / w);
             if (currentPage < _questionData.Count)
             {
-                lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+                lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
                 currentQuestionNumber = currentPage + 1;
             }
         }
@@ -245,7 +245,7 @@ namespace QuizApp.ViewController
             int index = e.Index;
             _index = index;
             currentQuestionNumber = index + 1;
-            lblQueNumber.Text = TranslationManager.Translate("QuestionPageQuestionWord") + $": { currentQuestionNumber}/ {_questionData.Count}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
         }
 
         [Export("scrollViewDidEndDecelerating:")]
