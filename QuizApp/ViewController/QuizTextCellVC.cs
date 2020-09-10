@@ -3,6 +3,7 @@ using System.Drawing;
 using CoreGraphics;
 using Foundation;
 using QuizApp.Model;
+using QuizApp.Service;
 using UIKit;
 
 namespace QuizApp.ViewController
@@ -12,8 +13,7 @@ namespace QuizApp.ViewController
         UILabel lblQue, SentenceText;
         UIButton btn1, btn2, btn3, btn4;
         private int _currentIndex;
-        private Answer currentAns;
-        private QuestionMBText _musicQuestion;
+        private MockManagementText _musicQuestion;
         public static readonly NSString CellId = new NSString("MusicCell");
         public event EventHandler<CellDataUpdateEventArgs> CellData;
 
@@ -102,43 +102,43 @@ namespace QuizApp.ViewController
 
         private void Question(UIButton btnUI)
         {
-            if (currentAns.IsAnswered)
+            if (_musicQuestion.Answers[_currentIndex].IsAnswered)
                 return;
 
             var selected = Convert.ToInt32(btnUI.Tag);
-            currentAns.IsCorrectAnswer = _musicQuestion.Lines[selected].SentenceId.Equals(currentAns.ID);
+            _musicQuestion.Answers[_currentIndex].IsCorrectAnswer = _musicQuestion.FullQuestionList[0][0].ActorName.Equals(_musicQuestion.Question1);
 
-            if (currentAns.IsCorrectAnswer)
+            if (_musicQuestion.Answers[_currentIndex].IsCorrectAnswer)
                 btnUI.BackgroundColor = UIColor.Green;
             else
                 btnUI.BackgroundColor = UIColor.Red;
 
-            currentAns.IsAnswered = true;
+            _musicQuestion.Answers[_currentIndex].IsAnswered = true;
 
             SetNeedsDisplay();
 
             CellDataUpdateEventArgs args = new CellDataUpdateEventArgs
             {
-                CurrentAnswer = currentAns,
+                CurrentAnswer = _musicQuestion.Answers[_currentIndex],
                 Index = _currentIndex
             };
             CellUpdated(args);
 
         }
 
-        public void UpdateCell(QuestionMBText currentQuestion, int questionNum, string questionNom, Answer ans, byte selectedAnwser)
+        public void UpdateCell(MockManagementText currentQuestion, int questionNum, string questionNom, byte selectedAnwser)
         {
             _musicQuestion = currentQuestion;
             _currentIndex = questionNum;
-            currentAns = ans;
-            lblQue.Text = currentQuestion.NameOfQuestion;
-            SentenceText.Text = currentQuestion.Sentence;
-            if (!currentAns.IsAnswered)
+            
+            lblQue.Text = "";
+            SentenceText.Text = "Who is the main actor of this movie ?";
+            if (!_musicQuestion.Answers[_currentIndex].IsAnswered)
             {
-                btn1.SetTitle(_musicQuestion.AnswerLine[0], UIControlState.Normal);
-                btn2.SetTitle(_musicQuestion.AnswerLine[1], UIControlState.Normal);
-                btn3.SetTitle(_musicQuestion.AnswerLine[2], UIControlState.Normal);
-                btn4.SetTitle(_musicQuestion.AnswerLine[3], UIControlState.Normal);
+                btn1.SetTitle(_musicQuestion.Question1[0].MovieName, UIControlState.Normal);
+                btn2.SetTitle(_musicQuestion.Question1[1].MovieName, UIControlState.Normal);
+                btn3.SetTitle(_musicQuestion.Question1[2].MovieName, UIControlState.Normal);
+                btn4.SetTitle(_musicQuestion.Question1[3].MovieName, UIControlState.Normal);
 
                 btn1.BackgroundColor = UIColor.FromRGB(128, 128, 128);
                 btn2.BackgroundColor = UIColor.FromRGB(128, 128, 128);
@@ -153,7 +153,7 @@ namespace QuizApp.ViewController
                 btn2.BackgroundColor = UIColor.FromRGB(128, 128, 128);
                 btn3.BackgroundColor = UIColor.FromRGB(128, 128, 128);
                 btn4.BackgroundColor = UIColor.FromRGB(128, 128, 128);
-                if (currentAns.IsCorrectAnswer)
+                if (_musicQuestion.Answers[_currentIndex].IsCorrectAnswer)
                 {
                     switch (selectedAnwser)
                     {

@@ -1,5 +1,6 @@
 ﻿using Foundation;
 using QuizApp.Model;
+using QuizApp.Service;
 using QuizApp.ViewController;
 using UIKit;
 
@@ -24,8 +25,7 @@ namespace QuizApp
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             Window.RootViewController = new UIViewController();
 
-            var one = new OutPutText();
-            
+            var one = new MockManagementText();
 
             var mainmenu = new QuizTextVC(one);
             var navcontroller = new UINavigationController(mainmenu);

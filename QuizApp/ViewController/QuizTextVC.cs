@@ -5,6 +5,7 @@ using System.Text;
 using CoreGraphics;
 using Foundation;
 using QuizApp.Model;
+using QuizApp.Service;
 using UIKit;
 
 namespace QuizApp.ViewController
@@ -20,22 +21,22 @@ namespace QuizApp.ViewController
         private int currentQuestionNumber = 1;
         private int _index;
         private List<Answer> _answers;
-        private List<QuestionMBText> _questionData;
+        private MockManagementText _questionData;
         private string QuestionPageQuestionWord, QuestionPageTypeOFQ1, QuestionPageTypeOFQ2, QuestionPageTypeOFQ3;
         private readonly string model = UIDevice.CurrentDevice.Model;
         private readonly string brand = UIDevice.CurrentDevice.Name;
         private List<byte> selectedAnwser;
 
-        public QuizTextVC(OutPutText dataText)
+        public QuizTextVC(MockManagementText dataText)
         {
-            this.Title = "Text Quiz";
+            this.Title = "Ios Quiz";
             string filename = "bg02.png";
             UIImage image = UIImage.FromFile(filename);
             image = image.Scale(View.Frame.Size);
             this.View.BackgroundColor = UIColor.FromPatternImage(image);
 
-            _answers = dataText.Answers;
-            _questionData = dataText.TotalData;
+            //_answers = dataText.Answers;
+            _questionData = dataText;
 
             selectedAnwser = new List<byte>(10);
 
@@ -54,8 +55,8 @@ namespace QuizApp.ViewController
         {
             QuestionPageQuestionWord = "Question";
             QuestionPageTypeOFQ1 = "Who is the main actor of this movie ?";
-            QuestionPageTypeOFQ2 = "Qui est le chanteur de cette chanson ?";
-            QuestionPageTypeOFQ3 = "D'où viens cette phrase ?";
+            //QuestionPageTypeOFQ2 = "Qui est le chanteur de cette chanson ?";
+            //QuestionPageTypeOFQ3 = "D'où viens cette phrase ?";
 
 
             btnPrev = new UIButton();
@@ -152,7 +153,7 @@ namespace QuizApp.ViewController
             lblQueNumber.WidthAnchor.ConstraintEqualTo(150).Active = true;
             lblQueNumber.LeftAnchor.ConstraintEqualTo(this.View.LeftAnchor, 20).Active = true;
             lblQueNumber.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor, -120).Active = true;
-            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
 
 
             lblScore.HeightAnchor.ConstraintEqualTo(lblQueNumber.HeightAnchor).Active = true;
@@ -164,7 +165,7 @@ namespace QuizApp.ViewController
         }
         private void btnPrevNextAction(UIButton sender)
         {
-            if (sender == btnNext && currentQuestionNumber == _questionData.Count)
+            if (sender == btnNext && currentQuestionNumber == 5)
             {
                 Completed(currentQuestionNumber);
                 return;
@@ -175,7 +176,7 @@ namespace QuizApp.ViewController
             if (sender == btnNext)
             {
                 contentOffset = (float)Math.Floor(this.collectionView.ContentOffset.X + collectionBounds.Size.Width);
-                currentQuestionNumber += currentQuestionNumber >= _questionData.Count ? 0 : 1;
+                currentQuestionNumber += currentQuestionNumber >= 5 ? 0 : 1;
             }
             else
             {
@@ -185,7 +186,7 @@ namespace QuizApp.ViewController
                     currentQuestionNumber -= currentQuestionNumber <= 0 ? 0 : 1;
                 }
             }
-            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
             int total = _answers.Count;
             int score = _answers.Count(x => x.IsCorrectAnswer);
             lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
@@ -195,7 +196,7 @@ namespace QuizApp.ViewController
 
         private void Completed(int currentQuestionNum)
         {
-            int total = _questionData.Count;
+            int total = 5;
             if (currentQuestionNum != total)
                 return;
 
@@ -205,6 +206,15 @@ namespace QuizApp.ViewController
                 //FinalTextVC final = new FinalTextVC(_answers);
                 //final.Answers = _answers;
                 //NavigationController.PushViewController(final, true);
+
+                var okAlertController = UIAlertController.Create("Congratulation", "You have finished the game", UIAlertControllerStyle.Alert);
+
+                //Add Action
+                okAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+
+                // Present Alert
+                PresentViewController(okAlertController, true, null);
+
             }
         }
 
@@ -219,22 +229,22 @@ namespace QuizApp.ViewController
             var x = collectionView.ContentOffset.X;
             var w = collectionView.Bounds.Size.Width;
             var currentPage = (int)Math.Ceiling(x / w);
-            if (currentPage < _questionData.Count)
+            if (currentPage < 5)
             {
-                lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
+                lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
                 currentQuestionNumber = currentPage + 1;
             }
         }
 
         public nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            return _questionData.Count;
+            return 5;
         }
 
         public UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var cell = collectionView.DequeueReusableCell(QuizTextCellVC.CellId, indexPath) as QuizTextCellVC;
-            cell.UpdateCell(_questionData[indexPath.Row], indexPath.Row, QuestionPageTypeOFQ1, _answers[indexPath.Row], selectedAnwser[indexPath.Row]);
+            cell.UpdateCell(_questionData[indexPath.Row], indexPath.Row, QuestionPageTypeOFQ1, selectedAnwser[indexPath.Row]);
             cell.CellData += CellDataUpdated;
             return cell;
         }
@@ -245,7 +255,7 @@ namespace QuizApp.ViewController
             int index = e.Index;
             _index = index;
             currentQuestionNumber = index + 1;
-            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.Count}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
         }
 
         [Export("scrollViewDidEndDecelerating:")]
