@@ -30,10 +30,10 @@ namespace QuizApp.ViewController
         public QuizTextVC(MockManagementText dataText)
         {
             this.Title = "Ios Quiz";
-            string filename = "bg02.png";
-            UIImage image = UIImage.FromFile(filename);
-            image = image.Scale(View.Frame.Size);
-            this.View.BackgroundColor = UIColor.FromPatternImage(image);
+            //string filename = "bg02.png";
+            //UIImage image = UIImage.FromFile(filename);
+            //image = image.Scale(View.Frame.Size);
+            //this.View.BackgroundColor = UIColor.FromPatternImage(image);
 
             //_answers = dataText.Answers;
             _questionData = dataText;
@@ -153,7 +153,7 @@ namespace QuizApp.ViewController
             lblQueNumber.WidthAnchor.ConstraintEqualTo(150).Active = true;
             lblQueNumber.LeftAnchor.ConstraintEqualTo(this.View.LeftAnchor, 20).Active = true;
             lblQueNumber.BottomAnchor.ConstraintEqualTo(this.View.BottomAnchor, -120).Active = true;
-            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.FullQuestionList.Count()}";
 
 
             lblScore.HeightAnchor.ConstraintEqualTo(lblQueNumber.HeightAnchor).Active = true;
@@ -176,7 +176,7 @@ namespace QuizApp.ViewController
             if (sender == btnNext)
             {
                 contentOffset = (float)Math.Floor(this.collectionView.ContentOffset.X + collectionBounds.Size.Width);
-                currentQuestionNumber += currentQuestionNumber >= 5 ? 0 : 1;
+                currentQuestionNumber += currentQuestionNumber >= _questionData.FullQuestionList.Count() ? 0 : 1;
             }
             else
             {
@@ -186,7 +186,7 @@ namespace QuizApp.ViewController
                     currentQuestionNumber -= currentQuestionNumber <= 0 ? 0 : 1;
                 }
             }
-            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.FullQuestionList.Count()}";
             int total = _answers.Count;
             int score = _answers.Count(x => x.IsCorrectAnswer);
             lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
@@ -231,20 +231,20 @@ namespace QuizApp.ViewController
             var currentPage = (int)Math.Ceiling(x / w);
             if (currentPage < 5)
             {
-                lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
+                lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.FullQuestionList.Count()}";
                 currentQuestionNumber = currentPage + 1;
             }
         }
 
         public nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            return 5;
+            return _questionData.FullQuestionList.Count();
         }
 
         public UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var cell = collectionView.DequeueReusableCell(QuizTextCellVC.CellId, indexPath) as QuizTextCellVC;
-            cell.UpdateCell(_questionData[indexPath.Row], indexPath.Row, QuestionPageTypeOFQ1, selectedAnwser[indexPath.Row]);
+            cell.UpdateCell(_questionData, indexPath.Row, QuestionPageTypeOFQ1, selectedAnwser[indexPath.Row]);
             cell.CellData += CellDataUpdated;
             return cell;
         }
@@ -255,7 +255,7 @@ namespace QuizApp.ViewController
             int index = e.Index;
             _index = index;
             currentQuestionNumber = index + 1;
-            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {5}";
+            lblQueNumber.Text = "Question" + $": { currentQuestionNumber}/ {_questionData.FullQuestionList.Count()}";
         }
 
         [Export("scrollViewDidEndDecelerating:")]
