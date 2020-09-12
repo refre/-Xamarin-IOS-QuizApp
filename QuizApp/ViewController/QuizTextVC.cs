@@ -37,6 +37,8 @@ namespace QuizApp.ViewController
 
             //_answers = dataText.Answers;
             _questionData = dataText;
+            _answers = dataText.Answers;
+
 
             selectedAnwser = new List<byte>(10);
 
@@ -129,7 +131,7 @@ namespace QuizApp.ViewController
             this.View.AddSubview(lblScore);
 
         }
-        
+
 
         public override void ViewDidLayoutSubviews()
         {
@@ -160,7 +162,7 @@ namespace QuizApp.ViewController
             lblScore.WidthAnchor.ConstraintEqualTo(lblQueNumber.WidthAnchor).Active = true;
             lblScore.RightAnchor.ConstraintEqualTo(this.View.RightAnchor, -20).Active = true;
             lblScore.BottomAnchor.ConstraintEqualTo(lblQueNumber.BottomAnchor).Active = true;
-            lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
+            //lblScore.Text = $"Score: {_answers.Count(x => x.IsCorrectAnswer)}/{_answers.Count(x => x.IsAnswered)}";
 
         }
         private void btnPrevNextAction(UIButton sender)
@@ -245,6 +247,7 @@ namespace QuizApp.ViewController
         {
             var cell = collectionView.DequeueReusableCell(QuizTextCellVC.CellId, indexPath) as QuizTextCellVC;
             cell.UpdateCell(_questionData, indexPath.Row, QuestionPageTypeOFQ1, selectedAnwser[indexPath.Row]);
+
             cell.CellData += CellDataUpdated;
             return cell;
         }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
+using System.Text;
 using CoreGraphics;
 using Foundation;
 using QuizApp.Model;
@@ -8,7 +10,7 @@ using UIKit;
 
 namespace QuizApp.ViewController
 {
-    public class QuizTextCellVC: UICollectionViewCell
+    public class QuizTextCellVC : UICollectionViewCell
     {
         UILabel lblQue, SentenceText;
         UIButton btn1, btn2, btn3, btn4;
@@ -106,7 +108,7 @@ namespace QuizApp.ViewController
                 return;
 
             var selected = Convert.ToInt32(btnUI.Tag);
-            _musicQuestion.Answers[_currentIndex].IsCorrectAnswer = _musicQuestion.FullQuestionList[0][0].ActorName.Equals(_musicQuestion.Question1);
+            _musicQuestion.Answers[_currentIndex].IsCorrectAnswer = _musicQuestion.FullQuestionList[_currentIndex].FirstOrDefault(x => x.IsCorrectAnswer).ActorName.Equals(_musicQuestion.FullQuestionList[_currentIndex][selected].ActorName);
 
             if (_musicQuestion.Answers[_currentIndex].IsCorrectAnswer)
                 btnUI.BackgroundColor = UIColor.Green;
@@ -130,15 +132,25 @@ namespace QuizApp.ViewController
         {
             _musicQuestion = currentQuestion;
             _currentIndex = questionNum;
-            
-            lblQue.Text = "";
+
+            var movie = _musicQuestion.FullQuestionList[questionNum].FirstOrDefault(x => x.IsCorrectAnswer).MovieName;
+
+            StringBuilder questionText = new StringBuilder();
+
+            questionText.Append("Who is the main actor of this movie :  ");
+            questionText.Append(movie);
+            questionText.Append(" ?");
+
             SentenceText.Text = "Who is the main actor of this movie ?";
+            lblQue.Text = movie;
+
+            //SentenceText.Text = _musicQuestion.Question1.FirstOrDefault(x => x.IsCorrectAnswer).MovieName;
             if (!_musicQuestion.Answers[_currentIndex].IsAnswered)
             {
-                btn1.SetTitle(_musicQuestion.Question1[0].MovieName, UIControlState.Normal);
-                btn2.SetTitle(_musicQuestion.Question1[1].MovieName, UIControlState.Normal);
-                btn3.SetTitle(_musicQuestion.Question1[2].MovieName, UIControlState.Normal);
-                btn4.SetTitle(_musicQuestion.Question1[3].MovieName, UIControlState.Normal);
+                btn1.SetTitle(_musicQuestion.FullQuestionList[questionNum][0].ActorName, UIControlState.Normal);
+                btn2.SetTitle(_musicQuestion.FullQuestionList[questionNum][1].ActorName, UIControlState.Normal);
+                btn3.SetTitle(_musicQuestion.FullQuestionList[questionNum][2].ActorName, UIControlState.Normal);
+                btn4.SetTitle(_musicQuestion.FullQuestionList[questionNum][3].ActorName, UIControlState.Normal);
 
                 btn1.BackgroundColor = UIColor.FromRGB(128, 128, 128);
                 btn2.BackgroundColor = UIColor.FromRGB(128, 128, 128);
